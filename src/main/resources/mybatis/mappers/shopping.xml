@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="shopping">
+
+	<select id="selectList" resultType="com.javaex.vo.ShoppingVo">
+		
+		<![CDATA[
+				SELECT 
+					    s.no AS shoppingNo,
+					    s.user_no AS userNo,
+					    s.count AS count,
+						s.options_no AS optionsNo,
+					    s.pick_date AS pickDate,
+					    g.price AS price,
+					    o.taste AS taste,
+					    g.name as goodsName
+				FROM shopping s
+				JOIN options o on s.options_no = o.no
+				join goods g on o.goods_no = g.no
+				WHERE s.user_no = #{userNo}
+    	]]>
+
+	</select>
+
+
+	<insert id="addShoppingItem" parameterType="com.javaex.vo.ShoppingVo">
+	   	<![CDATA[
+	    INSERT INTO shopping (no,user_no,options_no, count, pick_date) 
+	    VALUES (null, #{userNo}, #{optionsNo}, #{count}, #{pickDate})
+	    ]]>
+	</insert>
+
+	<delete id="deleteShoppingItem" parameterType="int">
+		<![CDATA[
+   		 DELETE FROM shopping WHERE no = #{shoppingNo}
+   		 ]]>
+	</delete>
+
+
+ <select id="selectShoppingItemsWithMap" parameterType="map" resultType="com.javaex.vo.ShoppingVo">
+    <![CDATA[
+        SELECT 
+            s.no AS shoppingNo,
+            s.user_no AS userNo,
+            s.count AS count,
+            s.options_no AS optionsNo,
+            s.pick_date AS pickDate,
+            g.price AS price,
+            o.taste AS taste,
+            g.name AS goodsName
+        FROM shopping s
+        JOIN options o ON s.options_no = o.no
+        JOIN goods g ON o.goods_no = g.no
+    ]]>
+        <where>
+        <!-- 선택된 options_no 필터링 -->
+        <if test="selectedItems != null and selectedItems.size() > 0">
+            AND s.options_no IN 
+            <foreach item="item" collection="selectedItems" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+
+    </where>
+</select>
+
+</mapper>
